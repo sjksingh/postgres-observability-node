@@ -61,17 +61,26 @@ curl -s http://localhost:3001/api/indexstats | jq
 
 ## Visual Diagram
 
++----------------+     HTTP     +----------------+
+|                |  Requests    |                |
+| Client Browser | -----------> | Node.js Server |
+|                |              |                |
++----------------+              +--------+-------+
+                                         |
+                                         | Database
+                                         | Queries
+                                         |
+                                +--------v-------+
+                                |                |
+                                |   PostgreSQL   |
+                                |   Database     |
+                                |                |
+                                +----------------+
 
 
-
-graph TD
-    A[Client Browser] -->|HTTP Requests| B[Node.js Server]
-    B -->|Database Queries| C[PostgreSQL Database]
-    B -->|Serve| D[index.html]
-    B -->|API Routes| E[routes/]
-    F[db.js] -->|Database Connection| B
-
-
-
+Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
+License
+This project is licensed under the MIT License.
 
 
