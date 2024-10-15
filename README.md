@@ -1,12 +1,19 @@
 # postgres-observability-node
+
 This project provides a Node.js-based observability solution for PostgreSQL databases, allowing users to monitor and analyze database performance through a web-based UI.
 
-Install: 
+## Installation
+
+Run the following commands to set up the project:
+
+```bash
 npm init -y
 npm install express pg cors
+```
 
+## Project Structure
 
-
+```
 project-root/
 │
 ├── server.js
@@ -18,30 +25,51 @@ project-root/
 │   └── (API route files)
 ├── node_modules/
 └── README.md
+```
 
+## Starting the Node Server
 
-Start Node:
+To start the server, run:
+
+```bash
 node server.js
+```
 
+## API Endpoints
 
-List of APIs....
+You can access the following API endpoints using cURL or a web browser:
+
+### Using cURL
+
+```bash
 curl -s http://localhost:3001/api/Version
 curl -s http://localhost:3001/api/pg-stats | jq
 curl -s http://localhost:3001/api/vacuum-observability
 curl -s http://localhost:3001/api/slow-queries | jq
 curl -s http://localhost:3001/api/enhancedtablestats | jq
 curl -s http://localhost:3001/api/indexstats | jq 
+```
+
+### Using a Web Browser
+
+- http://localhost:3001/api/Version
+- http://localhost:3001/api/pg-stats
+- http://localhost:3001/api/vacuum-observability
+- http://localhost:3001/api/slow-queries
+- http://localhost:3001/api/enhancedtablestats
+- http://localhost:3001/api/indexstats
+
+## Visual Diagram
 
 
 
 
-Browser:
-http://localhost:3001/api/Version
-http://localhost:3001/api/pg-stats
-http://localhost:3001/api/vacuum-observability
-http://localhost:3001/api/slow-queries
-http://localhost:3001/api/enhancedtablestats
-http://localhost:3001/api/indexstats
+graph TD
+    A[Client Browser] -->|HTTP Requests| B[Node.js Server]
+    B -->|Database Queries| C[PostgreSQL Database]
+    B -->|Serve| D[index.html]
+    B -->|API Routes| E[routes/]
+    F[db.js] -->|Database Connection| B
 
 
 
