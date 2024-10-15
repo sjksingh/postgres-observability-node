@@ -61,6 +61,7 @@ curl -s http://localhost:3001/api/indexstats | jq
 
 ## Visual Diagram
 
+```
 +----------------+     HTTP     +----------------+
 |                |  Requests    |                |
 | Client Browser | -----------> | Node.js Server |
@@ -76,11 +77,14 @@ curl -s http://localhost:3001/api/indexstats | jq
                                 |   Database     |
                                 |                |
                                 +----------------+
+```
 
+## Contributing
 
-Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
-License
+
+## License
+
 This project is licensed under the MIT License.
 
 
