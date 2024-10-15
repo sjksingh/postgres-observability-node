@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postgres Database</title>
+    <style>
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+        .menu {
+            width: 200px;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: left;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .pagination button {
+            display: inline-block;
+            width: auto;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <h2>Postgres Database</h2>
+        <div id="apiButtons"></div>
+    </div>
+
+    <div class="content">
+        <h1>Database APIs</h1>
+        <div id="results"></div>
+        <div id="pagination" class="pagination"></div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentEndpoint = '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiButtons = [
+                { text: 'Get Current Time', endpoint: 'current-time' },
+                { text: 'Get Database Version', endpoint: 'version' },
+                { text: 'Get pg_stats Data', endpoint: 'pg-stats' },
+                { text: 'Get Index Stats Data', endpoint: 'indexstats' },
+                { text: 'Get Table Stats Data', endpoint: 'enhancedtablestats' },
+                { text: 'Get Slow Queries', endpoint: 'slow-queries' },
+                { text: 'Get Vacuum Observability', endpoint: 'vacuum-observability' }
+            ];
+
+            const apiButtonsContainer = document.getElementById('apiButtons');
+            apiButtons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.textContent = button.text;
+                btn.addEventListener('click', () => fetchData(button.endpoint, 1));
+                apiButtonsContainer.appendChild(btn);
+            });
+        });
+
+        function fetchData(endpoint, page = 1) {
+            currentEndpoint = endpoint;
+            console.log(`Fetching data from ${endpoint}, page ${page}...`);
+            fetch(`http://localhost:3001/api/${endpoint}?page=${page}&limit=50`)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received data:', data);
+                    displayResults(data, endpoint);
+                    if (data.pagination) {
+                        updatePagination(data.pagination);
+                    } else {
+                        document.getElementById('pagination').innerHTML = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('results').textContent = 'Error fetching data. Check console for details.';
+                    document.getElementById('pagination').innerHTML = '';
+                });
+        }
+
+        function displayResults(data, endpoint) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<h2>${endpoint} Results:</h2>`;
+            
+            if (Array.isArray(data) || (data.data && Array.isArray(data.data))) {
+                const tableData = Array.isArray(data) ? data : data.data;
+                const table = createTable(tableData);
+                resultsDiv.appendChild(table);
+            } else {
+                const pre = document.createElement('pre');
+                pre.textContent = JSON.stringify(data, null, 2);
+                resultsDiv.appendChild(pre);
+            }
+        }
+
+        function createTable(data) {
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            
+            Object.keys(data[0]).forEach(key => {
+                const th = document.createElement('th');
+                th.textContent = key;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                Object.values(row).forEach(value => {
+                    const td = document.createElement('td');
+                    td.textContent = value;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+
+            return table;
+        }
+
+        function updatePagination(pagination) {
+            currentPage = pagination.currentPage;
+            totalPages = pagination.totalPages;
+            
+            const paginationDiv = document.getElementById('pagination');
+            paginationDiv.innerHTML = '';
+
+            if (currentPage > 1) {
+                const prevButton = createPaginationButton('Previous', () => fetchData(currentEndpoint, currentPage - 1));
+                paginationDiv.appendChild(prevButton);
+            }
+
+            const pageInfo = document.createElement('span');
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            paginationDiv.appendChild(pageInfo);
+
+            if (currentPage < totalPages) {
+                const nextButton = createPaginationButton('Next', () => fetchData(currentEndpoint, currentPage + 1));
+                paginationDiv.appendChild(nextButton);
+            }
+        }
+
+        function createPaginationButton(text, onClick) {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.addEventListener('click', onClick);
+            return button;
+        }
+    </script>
+</body>
+</html>
